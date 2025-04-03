@@ -1,0 +1,47 @@
+{
+  // See https://go.microsoft.com/fwlink/?linkid=830387
+  // for the documentation about the launch.json format
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(gdb) Depurar ./bin/tp2 'archivo.i'",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/tp2",
+      "args": ["archivo.i"],
+      "stopAtEntry": true,
+      "cwd": "${workspaceFolder}/bin",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "make bin/tp2"
+    },
+    {
+      "name": "(gdb) Depurar ./bin/tp2.exe 'archivo.i'",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/tp2.exe",
+      "args": ["archivo.i"],
+      "stopAtEntry": true,
+      "cwd": "${workspaceFolder}/bin",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "make bin/tp2.exe"
+    }
+  ]
+}

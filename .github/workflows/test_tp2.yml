@@ -1,0 +1,47 @@
+name: Test TP 2
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'TP2/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: List directory structure
+      run: ls -R
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential flex libfl-dev
+    
+    - name: Display installed versions
+      run: |
+        git --version
+        make --version
+        gcc --version
+        flex --version
+
+    - name: Compile code with make
+      working-directory: ./TP2
+      run: |
+        make
+
+    - name: Run test script
+      working-directory: ./TP2
+      run: |
+        chmod +x ./tests/run_testsuite.sh
+        ./tests/run_testsuite.sh './bin/tp2'
+
+    - name: Clean up
+      working-directory: ./TP2
+      run: rm -f ./bin/tp2 ./tests/output/test_*.txt ./tests/output/expected/test_*_clean.txt

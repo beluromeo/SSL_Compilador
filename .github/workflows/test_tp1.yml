@@ -1,0 +1,46 @@
+name: Test TP 1
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'TP1/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: List directory structure
+      run: ls -R
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git build-essential
+
+    - name: Display installed versions
+      run: |
+        git --version
+        make --version
+        gcc --version
+
+    - name: Compile code with make
+      working-directory: ./TP1
+      run: |
+        make
+
+    - name: Run test script
+      working-directory: ./TP1
+      run: |
+        chmod +x ./tests/run_testsuite.sh
+        ./tests/run_testsuite.sh './bin/tp1'
+
+    - name: Clean up
+      working-directory: ./TP1
+      run: rm -f ./bin/tp1 ./tests/output/test_*.txt ./tests/output/expected/test_*_clean.txt
