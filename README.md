@@ -7,7 +7,7 @@ perteneciente a la carrera de **Ingeniería en Sistemas de Información** dictad
 **Universidad Tecnológica Nacional - Facultad Regional Buenos Aires** (***UTN FRBA***).
 
 - ***Docente:*** Santiago Ferreiros Cabrera
-- ***Tutor asignado:*** *\Christian Matias Hernandez Westrom\*
+- ***Tutor asignado:*** Christian Matias Hernandez Westrom
 
 ### Integrantes
 | Legajo    | Apellido(s) | Nombre(s) | Usuario de GitHub                      | Correo electrónico institucional |
