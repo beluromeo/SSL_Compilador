@@ -19,4 +19,4 @@ perteneciente a la carrera de **Ingeniería en Sistemas de Información** dictad
 | 214.084-6 | Romeo | Belén Ariadna | beluromeo | bromeo@frba.utn.edu.ar |
 | 215.573-4 | Bonacci | Agustin | agbonacci | abonacci@frba.utn.edu.ar |
 | 208.752-2 | Gutierrez | Juan Martin | jjuanmaa | juagutierrez@frba.utn.edu.ar |
-| 208.752-2 | Arin | Tomas Andres | TomasAArin | tarin@frba.utn.edu.ar |
+| 209.613-4 | Arin | Tomas Andres | TomasAArin | tarin@frba.utn.edu.ar |
