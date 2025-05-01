@@ -18,6 +18,24 @@ int recorrerAFD(char [], int, int[][6]);
 void guardarCadena(int, char[]);
 void escribirCaracterSalida(char);
 
+
+typedef enum {
+    q0,
+    q1,
+    q2,
+    q3,
+    q4,
+    q5,
+    q6
+}EstadosAFD;
+typedef enum {
+    NO_RECONOCIDA = -1,
+    OCTAL = 1,
+    DECIMAL = 2,
+    HEXADECIMAL = 4
+} TipoConstante;
+
+
 int main(int argc, char *argv[]) {
     int largoString, constEntera, iCadena = 0, matrizTT [7][6];
     char caracter;
@@ -61,7 +79,7 @@ int main(int argc, char *argv[]) {
 }
 
 int recorrerAFD(char cadenaLeida[], int largoString, int matrizTT[][6]){
-    int simbolo, estadoInicial=0, estadoActual=0, estadoFinal[4]={1, 2, 4, 5}, estadoRechazo = 6,
+    int simbolo, estadoInicial=q0, estadoActual=q0, estadoFinal[4]={q1, q2, q4, q5}, estadoRechazo = q6,
     sgteEstado = 0, rechazo = 0, constEntera = -1;
     for (int i=0; i<largoString; i++){ 
         simbolo = calcularSimbolo(cadenaLeida[i]);
@@ -112,23 +130,23 @@ void guardarCadena (int constEntera, char cadenaLeida[]){
     }
         switch (constEntera)
     {
-    case 1:
+    case q1:
         fprintf(ficheroSalida, " OCTAL\n");
         break;
 
-    case 2:
+    case q2:
         fprintf(ficheroSalida, " DECIMAL\n");
         break;
     
-    case 4:
+    case q4:
         fprintf(ficheroSalida, " HEXADECIMAL\n");
         break;
     
-    case 5:
+    case q5:
         fprintf(ficheroSalida, " OCTAL\n");
         break;
     
-    case -1:
+    case NO_RECONOCIDA:
         fprintf(ficheroSalida, " NO RECONOCIDA\n");
         break;
     
