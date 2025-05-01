@@ -9,16 +9,11 @@
 #include<stdio.h>
 #include<string.h>
 
-#define PATHENTRADA "entrada.txt"
-#define PATHSALIDA "salida.txt"
-
 void cargarMatriz(int [][6], int);
 int calcularSimbolo(char);
 int recorrerAFD(char [], int, int[][6]);
-void guardarCadena(int, char[]);
-void escribirCaracterSalida(char);
-
-
+void guardarCadena(int, char[], const char*);
+void escribirCaracterSalida(char ,const char*);
 typedef enum {
     q0,
     q1,
@@ -27,7 +22,7 @@ typedef enum {
     q4,
     q5,
     q6
-}EstadosAFD;
+} EstadosAFD;
 typedef enum {
     NO_RECONOCIDA = -1,
     OCTAL = 1,
@@ -35,16 +30,27 @@ typedef enum {
     HEXADECIMAL = 4
 } TipoConstante;
 
-
 int main(int argc, char *argv[]) {
     int largoString, constEntera, iCadena = 0, matrizTT [7][6];
     char caracter;
     char cadena[50];
+    // pregunta, aca no tengo que hacer una validacion estricta de argumentos pero con mira
+    // a dale entonces lo dejo
+    if (argc != 3){
+        printf ("Uso: %s <archivo_entrada> <archivo_salida>\n", argv[0]);
+        printf("Ejemplo: %s datos.txt resultados.txt\n", argv[0]);
+        return 1;
+    }
+// claro sisi y ahi moidificaron el file de fichero de entrada, esta bien
+// claro, entonces ahora que faltaria? ahhhh dale 
     cargarMatriz(matrizTT, 7);
+    
+    const char* pathEntrada = argv[1] ;
+    const char* pathSalida = argv[2] ;
 
     // Leer desde fichero entrada.txt
     FILE *ficheroEntrada;
-    if ((ficheroEntrada = fopen(PATHENTRADA, "r")) == NULL){
+    if ((ficheroEntrada = fopen(pathEntrada, "r")) == NULL){
         printf ("Error al intentar leer archivo...");
         return 1;
     }
@@ -55,10 +61,10 @@ int main(int argc, char *argv[]) {
             cadena[iCadena]='\0';
             largoString = iCadena;
             constEntera = recorrerAFD(cadena, largoString, matrizTT);
-            guardarCadena(constEntera, cadena);
+            guardarCadena(constEntera, cadena, pathSalida);
             iCadena = 0;
         }else{
-            escribirCaracterSalida(caracter);
+            escribirCaracterSalida(caracter, pathSalida);
             cadena[iCadena]=caracter;
             iCadena++;  
         }
@@ -70,7 +76,7 @@ int main(int argc, char *argv[]) {
         cadena[iCadena]='\0';
         largoString = iCadena;
         constEntera = recorrerAFD(cadena, largoString, matrizTT);
-        guardarCadena(constEntera, cadena);
+        guardarCadena(constEntera, cadena, pathSalida);
     }
 
     fclose(ficheroEntrada);
@@ -122,10 +128,10 @@ int calcularSimbolo(char caracter){
     return simbolo;
 }
 
-void guardarCadena (int constEntera, char cadenaLeida[]){
+void guardarCadena (int constEntera, char cadenaLeida[], const char* pathSalida){
     FILE *ficheroSalida;
-    if ((ficheroSalida = fopen(PATHSALIDA, "a")) == NULL){
-        printf("Error al acceder al archivo salida.txt");
+    if ((ficheroSalida = fopen(pathSalida, "a")) == NULL){
+        printf("Error al acceder al archivo salida.txt", pathSalida);
         return;
     }
         switch (constEntera)
@@ -158,10 +164,10 @@ void guardarCadena (int constEntera, char cadenaLeida[]){
     return;
 }
 
-void escribirCaracterSalida(char caracter){
+void escribirCaracterSalida(char caracter , const char* pathSalida){
     FILE *ficheroSalida;
-    if ((ficheroSalida = fopen(PATHSALIDA, "a")) == NULL){
-        printf("Error al acceder al archivo salida.txt");
+    if ((ficheroSalida = fopen(pathSalida, "a")) == NULL){
+        printf("Error al acceder al archivo salida.txt", pathSalida);
         return;
     }
     fputc(caracter, ficheroSalida);
@@ -219,10 +225,10 @@ void cargarMatriz(int matrizTT [][6], int filas){
     matrizTT[5][5]=6;
 
     // Estado q6 (inválido) -> '6'
-    matrizTT[5][0]=5;
-    matrizTT[5][1]=5;
-    matrizTT[5][2]=6;
-    matrizTT[5][3]=6;
-    matrizTT[5][4]=6;
-    matrizTT[5][5]=6;
+    matrizTT[6][0]=6;
+    matrizTT[6][1]=6;
+    matrizTT[6][2]=6;
+    matrizTT[6][3]=6;
+    matrizTT[6][4]=6;
+    matrizTT[6][5]=6;
 }
