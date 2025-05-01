@@ -9,22 +9,54 @@
 #include<stdio.h>
 #include<string.h>
 
+#define PATHENTRADA "entrada.txt"
+#define PATHSALIDA "salida.txt"
+
 void cargarMatriz(int [][6], int);
 int calcularSimbolo(char);
 int recorrerAFD(char [], int, int[][6]);
-void imprimirCadena(int, char[]);
+void guardarCadena(int, char[]);
+void escribirCaracterSalida(char);
 
 int main(int argc, char *argv[]) {
-    int largoString, constEntera, matrizTT [7][6];
+    int largoString, constEntera, iCadena = 0, matrizTT [7][6];
     char caracter;
+    char cadena[50];
     cargarMatriz(matrizTT, 7);
-    
-    //simulo lectura y validación desde file.txt
-    char cadenaLeida[] = "0xaBb1";
-    largoString = strlen(cadenaLeida);
-    constEntera = recorrerAFD(cadenaLeida, largoString, matrizTT);
-    imprimirCadena(constEntera, cadenaLeida); // -> Luego debería escribir el FILE salida.txt
-    
+
+    // Leer desde fichero entrada.txt
+    FILE *ficheroEntrada;
+    if ((ficheroEntrada = fopen(PATHENTRADA, "r")) == NULL){
+        printf ("Error al intentar leer archivo...");
+        return 1;
+    }
+
+    while((caracter = fgetc (ficheroEntrada)) != EOF)
+    {
+        if (caracter == ','){
+            cadena[iCadena]='\0';
+            largoString = iCadena;
+            constEntera = recorrerAFD(cadena, largoString, matrizTT);
+            guardarCadena(constEntera, cadena);
+            iCadena = 0;
+        }else{
+            escribirCaracterSalida(caracter);
+            cadena[iCadena]=caracter;
+            iCadena++;  
+        }
+      
+    }
+
+    // Agrego chequeo de ultima palabra si no finaliza con ','
+    if (iCadena!=0){
+        cadena[iCadena]='\0';
+        largoString = iCadena;
+        constEntera = recorrerAFD(cadena, largoString, matrizTT);
+        guardarCadena(constEntera, cadena);
+    }
+
+    fclose(ficheroEntrada);
+
     return 0;
 }
 
@@ -72,33 +104,50 @@ int calcularSimbolo(char caracter){
     return simbolo;
 }
 
-void imprimirCadena (int constEntera, char cadenaLeida[]){
-    switch (constEntera)
+void guardarCadena (int constEntera, char cadenaLeida[]){
+    FILE *ficheroSalida;
+    if ((ficheroSalida = fopen(PATHSALIDA, "a")) == NULL){
+        printf("Error al acceder al archivo salida.txt");
+        return;
+    }
+        switch (constEntera)
     {
     case 1:
-        printf("La cadena '%s', corresponde a una constante entera octal\n", cadenaLeida);
+        fprintf(ficheroSalida, " OCTAL\n");
         break;
 
     case 2:
-        printf("La cadena '%s', corresponde a una constante entera decimal\n", cadenaLeida);
+        fprintf(ficheroSalida, " DECIMAL\n");
         break;
     
     case 4:
-        printf("La cadena '%s', corresponde a una constante entera hexadecimal\n", cadenaLeida);
+        fprintf(ficheroSalida, " HEXADECIMAL\n");
         break;
     
     case 5:
-        printf("La cadena '%s', corresponde a una constante entera octal\n", cadenaLeida);
+        fprintf(ficheroSalida, " OCTAL\n");
         break;
     
     case -1:
-        printf("Cadena NO reconocida...\n");
+        fprintf(ficheroSalida, " NO RECONOCIDA\n");
         break;
     
     default:
         printf("Ocurrió un error...\n");
         break;
     }
+    fclose(ficheroSalida);
+    return;
+}
+
+void escribirCaracterSalida(char caracter){
+    FILE *ficheroSalida;
+    if ((ficheroSalida = fopen(PATHSALIDA, "a")) == NULL){
+        printf("Error al acceder al archivo salida.txt");
+        return;
+    }
+    fputc(caracter, ficheroSalida);
+    fclose(ficheroSalida);
 }
 
 void cargarMatriz(int matrizTT [][6], int filas){

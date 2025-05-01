@@ -2,10 +2,10 @@
 ## Autómata Finito Determinístico para Constantes Enteras de C
 
 ### Diagrama de Estados
-*Imagen*
+![Diagrama de Estados](/TP1/img/AFD_ConstantesEnteras.png)
 
 ### Tabla de Transiciones (TT)
-*Imagen*
+![Tabla de Transiciones](/TP1/img/TT.png)
 
 ### Ficha técnica
 - **Estándar de C utilizado**:
