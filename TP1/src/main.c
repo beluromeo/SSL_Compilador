@@ -34,15 +34,13 @@ int main(int argc, char *argv[]) {
     int largoString, constEntera, iCadena = 0, matrizTT [7][6];
     char caracter;
     char cadena[50];
-    // pregunta, aca no tengo que hacer una validacion estricta de argumentos pero con mira
-    // a dale entonces lo dejo
+    
     if (argc != 3){
         printf ("Uso: %s <archivo_entrada> <archivo_salida>\n", argv[0]);
         printf("Ejemplo: %s datos.txt resultados.txt\n", argv[0]);
         return 1;
     }
-// claro sisi y ahi moidificaron el file de fichero de entrada, esta bien
-// claro, entonces ahora que faltaria? ahhhh dale 
+ 
     cargarMatriz(matrizTT, 7);
     
     const char* pathEntrada = argv[1] ;
