@@ -1,14 +1,15 @@
 #!/bin/sh
 
-# Gets the relative directory of the current script
+# Obtiene la ruta relativa de este script
 this_dir=$(dirname "$0")
 
-# Includes color definitions
+# Incluye las definiciones de colores
 . "${this_dir}/colors.sh"
 
+# Incluye las configuraciones de la suite de tests
 . "${this_dir}/settings.sh"
 
-# Validar la cantidad recibida de parámetros
+# Validación de parámetros
 if [ "$#" -ne 1 ]; then
     printf "${Yellow}Uso: $0 <ruta al programa>${Color_Off}\n"
     exit 1
@@ -21,12 +22,26 @@ total_tests=0
 passed_tests=0
 total_percentage=0
 
-if ! [ -f "$program_path" ]; then
-    printf "${Yellow}No existe el programa objetivo: '%s'. Se lo debe construir primero...${Color_Off}\n" "$program_path"
+# Busca el archivo/comando a ejecutar
+#   Caso 1: Es el nombre de un comando definido en la variable de entorno PATH
+if command -v "${program_path}" >/dev/null 2>&1; then
+    printf "%s: Comando encontrado en la variable de entorno PATH\n" "${program_path}"
+#   Caso 2: Es la ruta a un archivo regular
+elif [ -f "$program_path" ]; then
+    # Intenta hacer ejecutable el archivo
+    chmod +x "${program_path}"
+    # Verifica si el archivo es ejecutable
+    if [ -x "${program_path}" ]; then
+        printf "%s: Archivo ejecutable encontrado\n" "${program_path}"
+    else
+        printf "${Yellow}%s: El archivo no es ejecutable${Color_Off}\n" "${program_path}"
+        exit 1
+    fi
+#   Caso 3: No existe
+else
+    printf "${Yellow}%s: El archivo/comando no existe${Color_Off}\n" "$program_path"
     exit 1
 fi
-
-chmod +x "${program_path}"
 
 # Ejecutar pruebas
 for input_path in "${this_dir}"/input/test_*"${input_extension}"; do
@@ -35,7 +50,7 @@ for input_path in "${this_dir}"/input/test_*"${input_extension}"; do
     actual_output_path="${this_dir}/output/${test_name}.txt"
     expected_output_path="${this_dir}/output/expected/${test_name}.txt"
 
-    printf "${Purple}Ejecutando %s...${Color_Off}\n\n" "${test_name}"
+    printf "\n${Purple}Ejecutando %s...${Color_Off}\n\n" "${test_name}"
 
     if ! [ -f "$expected_output_path" ]; then
         printf "\n${Yellow}No existe el archivo de salida esperada: '%s'${Color_Off}\n" "$expected_output_path"
@@ -43,7 +58,17 @@ for input_path in "${this_dir}"/input/test_*"${input_extension}"; do
     fi
 
     # Ejecutar el programa con rutas de archivo de entrada y salida
-    '${program_path}' '${input_path}' > '${actual_output_path}'
+	printf "%s %s > %s\n" "${program_path}" "${input_path}" "${actual_output_path}"
+	"${program_path}" "${input_path}" > "${actual_output_path}"
+
+    # Verificar si el programa se ejecutó correctamente
+    ret=$?
+    if [ ${ret} -ne 0 ]; then
+        printf "\n${Yellow}El programa retorno con el valor de salida %s${Color_Off}\n" "${ret}"
+        #break
+    else
+        printf "\n${Green}El programa retorno con el valor de salida %s${Color_Off}\n" "${ret}"
+    fi
 
     if ! [ -f "$actual_output_path" ]; then
         printf "\n${Yellow}No existe el archivo de salida actual: "%s"${Color_Off}\n" "$actual_output_path"
@@ -80,12 +105,18 @@ for input_path in "${this_dir}"/input/test_*"${input_extension}"; do
         printf "\nResultado de %s:${Red} FAIL con %s%% de cobertura. Minimo a alcanzar para superar test: %s%%${Color_Off}\n" "$test_name" "$percentage_matching" "$min_percentage_matching_per_test"
     fi
 
+    # Mostrar diferencias entre salida actual y esperada
+    actual="${this_dir}/output/${test_name}_clean.txt"
+    expected="${this_dir}/output/expected/${test_name}_clean.txt"
+
     if ! command -v git >/dev/null 2>&1; then
         printf "\nDiferencias entre salida actual y salida esperada:\n"
-        diff "${this_dir}/output/${test_name}_clean.txt" "${this_dir}/output/expected/${test_name}_clean.txt"
+		printf "diff %s %s\n" "${actual}" "${expected}"
+		diff "${actual}" "${expected}"
     else
         printf "\nDiferencias indicadas segun colores de referencia:\n${Color_Off}  * Color por defecto: Informacion${Color_Off}\n${Cyan}  * Cian: Numeros de lineas con diferencias entre salida actual y esperada${Color_Off}\n${Red}  - Rojo: Lineas diferentes en salida actual${Color_Off}\n${Green}  + Verde: Lineas diferentes en salida esperada${Color_Off}\n"
-        git --no-pager diff --no-index --unified=0 "${this_dir}/output/${test_name}_clean.txt" "${this_dir}/output/expected/${test_name}_clean.txt"
+		printf "git --no-pager diff --no-index --unified=0 %s %s\n" "${actual}" "${expected}"
+		git --no-pager diff --no-index --unified=0 "${actual}" "${expected}"
     fi
     
 done
@@ -97,8 +128,9 @@ else
     average_percentage=0
 fi
 
-printf "\nSe supero %s test(s) de un total de %s test(s)\n" "$passed_tests" "$total_tests"
-printf "\nPorcentaje promedio de cobertura de tests: %s%%\n" "$average_percentage"
+printf "\n${Blue}Resumen${Color_Off}\n\n"
+printf "Se supero %s test(s) de un total de %s test(s)\n\n" "$passed_tests" "$total_tests"
+printf "Porcentaje promedio de cobertura de tests: %s%%\n" "$average_percentage"
 
 if awk -v a="$passed_tests" -v b="$min_quantity_test" 'BEGIN {exit !(a < b)}'; then
     pass_tests=0
