@@ -13,6 +13,7 @@ void cargarMatriz(int [][6], int);
 int calcularSimbolo(char);
 int recorrerAFD(char [], int, int[][6]);
 void guardarCadena(int, const char*);
+void imprimirCadena (int);
 void escribirCaracterSalida(char ,const char*);
 typedef enum {
     q0,
@@ -31,16 +32,38 @@ typedef enum {
 } TipoConstante;
 
 int main(int argc, char *argv[]) {
-    int largoString, constEntera, iCadena = 0, matrizTT [7][6];
+    int largoString, constEntera, existeParametroSalida = 1, iCadena = 0, matrizTT [7][6];
     char caracter;
     char cadena[50];
-    if (argc != 3){
-        printf ("Uso: %s <archivo_entrada> <archivo_salida>\n", argv[0]);
+
+    // Verifico cantidad de argumentos
+        switch (argc)
+    {
+    case 1:
+        printf ("Se necesita al menos un parámetro, opcional, parametro archivo salida: %s <archivo_entrada> [<archivo_salida>]\n", argv[0]);
+        printf("Ejemplo: %s datos.txt resultados.txt\n", argv[0]);
+        return 1;
+        break;
+
+    case 2:
+        existeParametroSalida = 0;
+        break;
+    
+    default:
+        // Codigo para manejar posibles errores
+        break;
+    }
+
+    if (argc > 3){
+        printf ("Se esperaban maximo 2 parámetros adicionales: %s <archivo_entrada> [<archivo_salida>]\n", argv[0]);
         printf("Ejemplo: %s datos.txt resultados.txt\n", argv[0]);
         return 1;
     }
-    const char* pathEntrada = argv[1] ;
-    const char* pathSalida = argv[2] ;
+
+    const char* pathEntrada = argv[1];
+    const char* pathSalida=NULL;
+    if (existeParametroSalida==1)
+        pathSalida = argv[2];
     cargarMatriz(matrizTT, 7);
     
     // Leer desde fichero entrada.txt
@@ -55,10 +78,16 @@ int main(int argc, char *argv[]) {
         if (caracter == ','){
             largoString = iCadena;
             constEntera = recorrerAFD(cadena, largoString, matrizTT);
-            guardarCadena(constEntera, pathSalida);
+            if(existeParametroSalida)
+                guardarCadena(constEntera, pathSalida);
+            else
+                imprimirCadena(constEntera);
             iCadena = 0;
         }else{
-            escribirCaracterSalida(caracter, pathSalida);
+            if(existeParametroSalida)
+                escribirCaracterSalida(caracter, pathSalida);
+            else
+                printf("%c", caracter);
             cadena[iCadena]=caracter;
             iCadena++;  
             }
@@ -66,9 +95,12 @@ int main(int argc, char *argv[]) {
 
     // Agrego chequeo de ultima palabra si no finaliza con ','
     if (iCadena!=0){
-        largoString = iCadena-1;
+        largoString = iCadena;
         constEntera = recorrerAFD(cadena, largoString, matrizTT);
-        guardarCadena(constEntera, pathSalida);
+        if(existeParametroSalida)
+            guardarCadena(constEntera, pathSalida);
+        else
+            imprimirCadena(constEntera);
     }
 
     fclose(ficheroEntrada);
@@ -145,6 +177,36 @@ void guardarCadena (int constEntera, const char* pathSalida){
         break;
     }
     fclose(ficheroSalida);
+    return;
+}
+
+void imprimirCadena (int constEntera){
+    switch (constEntera)
+    {
+    case q1:
+        printf(" OCTAL\n");
+        break;
+
+    case q2:
+        printf(" DECIMAL\n");
+        break;
+    
+    case q4:
+        printf(" HEXADECIMAL\n");
+        break;
+    
+    case q5:
+        printf(" OCTAL\n");
+        break;
+    
+    case NO_RECONOCIDA:
+        printf(" NO RECONOCIDA\n");
+        break;
+    
+    default:
+        printf("Ocurrió un error...\n");
+        break;
+    }
     return;
 }
 
