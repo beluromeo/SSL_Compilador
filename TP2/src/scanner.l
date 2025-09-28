@@ -1,58 +1,166 @@
-
-/* Inicio de la sección de definiciones. Aquí: */
-    /* 1. Cualquier texto sangrado o encerrado entre '%{' y '%}' (estos últimos dos sin sangrar en líneas ocupadas únicamente por ellos) se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
-        /* De esas formas podemos poner declaraciones y definiciones de C y directivas del preprocesador */
-    /* 2. Los comentarios (sólo hay de múltiples líneas) sin sangría también se copian tal cual al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
-
 %{
 
 #include <stdio.h>
+#include <stdlib.h>
+#include "utils.h"
+#include "structs.h"
+
+// Inicialización de punteros globales
+NodoConstante* lista_constantes_caracter = NULL;
+NodoConstante* lista_constantes_enteras = NULL;
+NodoPalabraReservada* lista_palabras_reservadas = NULL;
+NodoIdentificadorUOperador* listaIdentificadores = NULL;
+NodoIdentificadorUOperador* listaOperadoresOPuntuacion = NULL;
+NodoIdentificadorUOperador* ultNodoOperadorOPuntuacion = NULL;
+Tipo_Literal_Cadena* lista_cadenas_literal = NULL;
+NodoNoReconocida* lista_cadenas_no_reconocidas = NULL;
+
+// Inicialización de variables globales
+int totalCadenas = 0;
+int capacidadCadenas = 0;
+
+// Definición de contadores
+#define INICIO_CONTEO_LINEA 1
+#define INICIO_CONTEO_COLUMNA 1
+
+int yylval;
+
+int linea_actual = INICIO_CONTEO_LINEA, columna_actual = INICIO_CONTEO_COLUMNA;
 
 %}
 
-    /* La siguiente línea define explícitamente a yytext como un puntero a un caracter ( char* yytext; ). Ésta es la opción por defecto si no se pone nada. */
 %pointer
-    /* Con la siguiente opción la función de análisis int yylex(void); se comporta como si en la sección de usuario existiera la función int yywrap(void) return 1; la cual devuelve verdadero (no-cero), haciendo que una vez que la función de análisis int yylex(void) reciba una indicación de EOF desde YY_INPUT, asuma que no hay nada más para analizar de yyin y finalice (haciendo un return 0;) */
+
+%option yylineno
+
 %option noyywrap
 
-    /* Condiciones de arranque inclusivas */
-/* %s */
-    /* Condiciones de arranque exclusivas */
-/* %x */
+%x tokenNoReconocido
 
-    /* Declaraciones con cada nombre y su definición; se utilizan para simplificar las reglas */
-/* digito [0-9] */
+ESPECIFICADOR_CLASE_ALMACENAMIENTO (auto|register|static|extern|typedef)
+ESPECIFICADOR_TIPO (void|char|short|int|long|float|double|signed|unsigned)
+CALIFICADOR_TIPO (const|volatile)
+STRUCT_O_UNION (struct|union)
+ENUMERACION (enum)
+ETIQUETA (case|default)
+SELECCION (if|else|switch)
+ITERACION (do|while|for)
+SALTO (goto|continue|break|return)
+UNARIO (sizeof)
 
-/* Fin de la sección de definiciones */
+DIGITO_DECIMAL [0-9]
+DIGITO_DECIMAL_SIN_CERO [1-9]
+DIGITO_OCTAL [0-7] 
+DIGITO_HEXADECIMAL [0-9a-fA-F]
+NO_DIGITO [_a-zA-Z]
 
-/* Inicio de la sección de reglas. Aquí: */
-    /* 1. Cualquier texto sangrado o encerrado entre '%{' y '%}' (estos últimos dos sin sangrar en líneas ocupadas únicamente por ellos) se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
-        /* Esto podría utilizarse para declarar variables que son locales a la rutina de análisis léxico y (después de las declaraciones) al código que debe ejecutarse siempre que se entra a la rutina de análisis léxico */
-    /* 2. NO pueden hacerse comentarios sin sangría, ya que estos no se copian literalmente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
+SUFIJO_ENTERO ({SUFIJO_LONG}|u|U)
+SUFIJO_LONG (l|L)
+SUFIJO_FLOTANTE ([fFlL])
+
+PARTE_ENTERA {DIGITO_DECIMAL}+
+PARTE_FRACCION ("."{DIGITO_DECIMAL}*)
+PARTE_EXPONENTE (e|E)("+"|"-")?{DIGITO_DECIMAL}*
+
+CONSTANTE_CARACTER_SIMPLE \'([^\\\n\'])\'
+CONSTANTE_CARACTER_ESCAPE_SIMPLE \'\\{SECUENCIA_ESCAPE_SIMPLE}\'
+CONSTANTE_CARACTER_ESCAPE_OCTAL \'\\[0-7]{1,3}\'
+CONSTANTE_CARACTER_ESCAPE_HEXADECIMAL \'\\x[0-9a-fA-F]+\'
+CONSTANTE_REAL ({PARTE_ENTERA}{PARTE_FRACCION}{PARTE_EXPONENTE}?{SUFIJO_FLOTANTE}?|{PARTE_FRACCION}{PARTE_EXPONENTE}?{SUFIJO_FLOTANTE}?|{PARTE_ENTERA}{PARTE_EXPONENTE}{SUFIJO_FLOTANTE}?)
+CONSTANTE_CARACTER ({CONSTANTE_CARACTER_SIMPLE}|{CONSTANTE_CARACTER_ESCAPE_SIMPLE}|{CONSTANTE_CARACTER_ESCAPE_OCTAL}|{CONSTANTE_CARACTER_ESCAPE_HEXADECIMAL})
+
+SECUENCIA_ESCAPE_SIMPLE (a|b|f|n|r|t|v|\'|\"|\?|\\)
+
+CADENA_LITERAL \"([^\\\n"]|\\.)*\"
+
+OPERADOR_O_CARACTER_DE_PUNTUACION (\[|\]|\(|\)|\{|\}|\.|\-\>|\+\+|\-\-|\&|\*|\+|\-|\˜|\!|\/|\%|\<\<|\>\>|\<|\>|\<\=|\>\=|\=\=|\!\=|\ˆ|\||\&\&|\|\||\=|\*\=|\/\=|\%\=|\+\=|\-\=|\<\<\=|\>\>\=|\&\=|\ˆ\=|\|\=|\?|\:|\;|\.\.\.|\,|\#|\#\#)
+
 %%
 
-[1-9][0-9]* { printf("\nEncontre una constante entera decimal: %s\n", yytext); }
-0[0-7]* { printf("\nEncontre una constante entera octal: %s\n", yytext); }
-0[xX][0-9a-fA-F]+ { printf("\nEncontre una constante entera hexadecimal: %s\n", yytext); }
-[_a-zA-Z]([_a-zA-Z]|[0-9])* { printf("\nEncontre un identificador: %s\n", yytext); }
+{DIGITO_DECIMAL_SIN_CERO}{DIGITO_DECIMAL}*{SUFIJO_ENTERO}? { funcionCteEntera(yytext, DECIMAL); columna_actual += yyleng; } 
+0{DIGITO_OCTAL}*{SUFIJO_ENTERO}? { funcionCteEntera(yytext, OCTAL); columna_actual += yyleng; } 
+0[xX]{DIGITO_HEXADECIMAL}+{SUFIJO_ENTERO}? { funcionCteEntera(yytext, HEXADECIMAL); columna_actual += yyleng; }
+{CONSTANTE_REAL} {funcionCteReal(yytext, REAL); columna_actual += yyleng; }
 
-    /* Reglas por defecto de Flex: */
-        /* <*>.|\n { ECHO; } */
-            /* (ECHO; escribe yytext en la salida del escáner: FILE* yyout (variable global a la cual por defecto se le asigna stdout)) */
-        /* <<EOF>> { yyterminate(); } */
-            /* (yyterminate(); hace que la función yylex finalice retornando un 0, indicando un fin-de-entrada (EOF)) */
+{ESPECIFICADOR_CLASE_ALMACENAMIENTO} { funcionPalabraReservada(yytext, ESPECIFICADOR_CLASE_ALMACENAMIENTO, linea_actual, columna_actual);  columna_actual += yyleng; }
+{ESPECIFICADOR_TIPO} { funcionPalabraReservada(yytext, ESPECIFICADOR_TIPO, linea_actual, columna_actual); columna_actual += yyleng; }
+{CALIFICADOR_TIPO} { funcionPalabraReservada(yytext, CALIFICADOR_TIPO, linea_actual, columna_actual);  columna_actual += yyleng; }
+{STRUCT_O_UNION} { funcionPalabraReservada(yytext, STRUCT_O_UNION, linea_actual, columna_actual);  columna_actual += yyleng; }
+{ENUMERACION} { funcionPalabraReservada(yytext, ENUMERACION, linea_actual, columna_actual);  columna_actual += yyleng; }
+{ETIQUETA} { funcionPalabraReservada(yytext, ETIQUETA, linea_actual, columna_actual); columna_actual += yyleng; }
+{SELECCION} { funcionPalabraReservada(yytext, SELECCION, linea_actual, columna_actual); columna_actual += yyleng; }
+{ITERACION} { funcionPalabraReservada(yytext, ITERACION, linea_actual, columna_actual); columna_actual += yyleng; }
+{SALTO} { funcionPalabraReservada(yytext, SALTO, linea_actual, columna_actual); columna_actual += yyleng; }
+{UNARIO} { funcionPalabraReservada(yytext, UNARIO, linea_actual, columna_actual); columna_actual += yyleng; }
 
-%%
-/* Fin de la sección de reglas */ 
+{NO_DIGITO}({NO_DIGITO}|{DIGITO_DECIMAL})* { agregarIdentificador(yytext); columna_actual += yyleng; }
+{OPERADOR_O_CARACTER_DE_PUNTUACION} { agregarOperadorOPuntuacion(yytext); columna_actual += yyleng;}
+{CONSTANTE_CARACTER} { funcionCteCaracter(yytext); columna_actual += yyleng; }
+{CADENA_LITERAL} { funcionLiteralCadena(yytext); columna_actual += yyleng; }
 
-/* Inicio de la sección de código de usuario, la cual: */
-	/* 1. Se utiliza para rutinas de complemento que llaman al analizador léxico o son llamadas por este; la presencia de esta sección es opcional */
-    /* 2. Toda esta sección simplemente se copia íntegramente al archivo de salida del analizador léxico (scanner) generado (*.lex.yy.c) */
+[ \t]+ { columna_actual += yyleng; }
 
-int main(int argc, char *argv[]) {
-    yylex();
+\n+ { linea_actual += yyleng; columna_actual = INICIO_CONTEO_COLUMNA; }
 
-    return 0;
+[^ \t\n] { yyless(0) ; BEGIN(tokenNoReconocido); }
+<tokenNoReconocido>{
+    <<EOF>> {
+        fprintf(stderr, "\n");
+        BEGIN(INITIAL);
+    }
+    " "|\t|\n {
+        yyless(0);
+        fprintf(stderr, "\n");
+        BEGIN(INITIAL);
+    }
+    [^ \t\n]+ { 
+        funcionNoReconocidas(yytext, linea_actual, columna_actual);
+        columna_actual += yyleng;
+        BEGIN(INITIAL);
+    }
 }
 
-/* Fin de la sección de código de usuario */
+%%
+
+int main(int argc, char *argv[]) {
+    int existeParametroSalida = 1;
+    // Verifico cantidad de argumentos
+    switch (argc)
+    {
+    case 1:
+        printf ("Se necesita al menos un parámetro, opcional, parametro archivo salida: %s <archivo_entrada> [<archivo_salida>]\n", argv[0]);
+        printf("Ejemplo: %s datos.txt resultados.txt\n", argv[0]);
+        return 1;
+        break;
+
+    case 2:
+        existeParametroSalida = 0;
+        break;
+    
+    default:
+        // Codigo para manejar posibles errores
+        break;
+    }
+
+    if (argc > 3){
+        printf ("Se esperaban maximo 2 parámetros adicionales: %s <archivo_entrada> [<archivo_salida>]\n", argv[0]);
+        printf("Ejemplo: %s datos.txt resultados.txt\n", argv[0]);
+        printf("\n[INFO] Utilizando %s como ruta archivo entrada y %s ruta salida... ", argv[1], argv[2]);
+    }
+
+    const char* pathEntrada = argv[1];
+    const char* pathSalida = NULL;
+
+    if(existeParametroSalida){
+        pathSalida = argv[2];
+        yyout = fopen(pathSalida, "w");	
+    }
+
+yyin = fopen(pathEntrada, "r");
+
+yylex();
+
+mostrarReporte();
+liberarMemoria();
+return 0;
+}
