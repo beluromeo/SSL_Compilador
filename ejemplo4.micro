@@ -1,0 +1,9 @@
+inicio
+    a := 100;
+    b := 200;
+    suma := a + b;
+    resta := b - a;
+    producto := a * 3;
+    division := b / 2;
+    escribir(suma, resta, producto, division);
+fin
