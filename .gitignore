@@ -1,0 +1,20 @@
+# Archivos generados por el compilador
+micro
+*.o
+parser.tab.c
+parser.tab.h
+lex.yy.c
+
+# Archivos de salida
+output.c
+a.out
+programa
+
+# Archivos de backup
+*~
+*.bak
+*.swp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

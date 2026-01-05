@@ -1,0 +1,6 @@
+inicio
+    leer(a, b, c);
+    resultado := a * b + c;
+    escribir(a, b, c);
+    escribir(resultado);
+fin
