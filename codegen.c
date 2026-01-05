@@ -86,6 +86,10 @@ void generar_operacion(const char *dest, const char *op1, const char *operador, 
 char *generar_temporal() {
     temp_count++;
     char *temp = malloc(32);
+    if (!temp) {
+        fprintf(stderr, "Error: No se pudo asignar memoria para temporal\n");
+        exit(1);
+    }
     sprintf(temp, "_t%d", temp_count);
     return temp;
 }
