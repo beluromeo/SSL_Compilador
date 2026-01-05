@@ -4,6 +4,9 @@
 #include "codegen.h"
 #include "symtab.h"
 
+#define TEMP_BUFFER_SIZE 32
+#define READ_BUFFER_SIZE 1024
+
 static FILE *output_file = NULL;
 static FILE *temp_file = NULL;
 static int temp_count = 0;
@@ -54,7 +57,7 @@ void generar_fin() {
     // Copiar el código generado del archivo temporal
     fprintf(output_file, "    /* Código del programa */\n");
     rewind(temp_file);
-    char buffer[1024];
+    char buffer[READ_BUFFER_SIZE];
     while (fgets(buffer, sizeof(buffer), temp_file)) {
         fprintf(output_file, "%s", buffer);
     }
@@ -85,7 +88,7 @@ void generar_operacion(const char *dest, const char *op1, const char *operador, 
 
 char *generar_temporal() {
     temp_count++;
-    char *temp = malloc(32);
+    char *temp = malloc(TEMP_BUFFER_SIZE);
     if (!temp) {
         fprintf(stderr, "Error: No se pudo asignar memoria para temporal\n");
         exit(1);

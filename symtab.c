@@ -21,8 +21,8 @@ int buscar_simbolo(const char *nombre) {
 void agregar_simbolo(const char *nombre) {
     if (buscar_simbolo(nombre) == -1) {
         if (num_simbolos < MAX_SYMBOLS) {
-            strncpy(tabla_simbolos[num_simbolos].nombre, nombre, 255);
-            tabla_simbolos[num_simbolos].nombre[255] = '\0';
+            strncpy(tabla_simbolos[num_simbolos].nombre, nombre, sizeof(tabla_simbolos[num_simbolos].nombre) - 1);
+            tabla_simbolos[num_simbolos].nombre[sizeof(tabla_simbolos[num_simbolos].nombre) - 1] = '\0';
             num_simbolos++;
         } else {
             fprintf(stderr, "Error: Tabla de símbolos llena\n");
