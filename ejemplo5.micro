@@ -1,0 +1,4 @@
+inicio
+    resultado := (10 + 20) * (30 - 15) / 5;
+    escribir(resultado);
+fin

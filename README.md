@@ -47,9 +47,11 @@ SSL_Compilador/
 ├── symtab.h/c       # Tabla de símbolos
 ├── codegen.h/c      # Generación de código C
 ├── Makefile         # Script de compilación
-├── ejemplo.micro    # Programa de ejemplo 1
-├── ejemplo2.micro   # Programa de ejemplo 2
-├── ejemplo3.micro   # Programa de ejemplo 3
+├── ejemplo.micro    # Programa de ejemplo 1 - Suma de dos números
+├── ejemplo2.micro   # Programa de ejemplo 2 - Expresión aritmética
+├── ejemplo3.micro   # Programa de ejemplo 3 - Operaciones con literales
+├── ejemplo4.micro   # Programa de ejemplo 4 - Todas las operaciones
+├── ejemplo5.micro   # Programa de ejemplo 5 - Expresiones con paréntesis
 └── README.md        # Este archivo
 ```
 
@@ -177,6 +179,33 @@ inicio
     escribir(x, y, z);
 fin
 ```
+
+### Ejemplo 4: Todas las operaciones aritméticas
+
+```
+inicio
+    a := 100;
+    b := 200;
+    suma := a + b;
+    resta := b - a;
+    producto := a * 3;
+    division := b / 2;
+    escribir(suma, resta, producto, division);
+fin
+```
+
+Salida: `300 100 300 100`
+
+### Ejemplo 5: Expresiones con paréntesis
+
+```
+inicio
+    resultado := (10 + 20) * (30 - 15) / 5;
+    escribir(resultado);
+fin
+```
+
+Salida: `90` (calcula (10+20) * (30-15) / 5 = 30 * 15 / 5 = 90)
 
 ## Gramática del Lenguaje
 
